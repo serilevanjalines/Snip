@@ -16,8 +16,16 @@ app.use(express.json());
 
 const urls = new Map();
 
-app.get("/urls", (req, res) => {
-    res.json(Object.fromEntries(urls));
+app.get("/urls", async (req, res) => {
+    try {
+        const result = await pool.query(
+            "SELECT * FROM urls"
+        );
+        res.json(result.rows);
+    }
+    catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 
