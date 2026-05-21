@@ -1,20 +1,45 @@
+require("dotenv").config();
+
 const express = require("express");
 const port = 8080;
 const app = express();
 const { Pool } = require("pg");
 
+
 const pool = new Pool({
-    user: "postgres",
-    host: "localhost",
-    database: "snip",
-    password: "postgres",
-    port: 5432,
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
 });
 
 
 app.use(express.json());
 
-const urls = new Map();
+async function initDB() {
+    let retries = 5;
+    while (retries) {
+        try {
+            await pool.query(`
+                CREATE TABLE IF NOT EXISTS urls (
+                    id SERIAL PRIMARY KEY,
+                    short_code VARCHAR(10) UNIQUE NOT NULL,
+                    original_url TEXT NOT NULL,
+                    click_count INTEGER DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT NOW()
+                )
+            `);
+            console.log("DB ready");
+            return;
+        } catch (err) {
+            retries--;
+            console.log(`DB not ready, retrying... ${retries} left`);
+            await new Promise(res => setTimeout(res, 2000));
+        }
+    }
+    throw new Error("DB connection failed");
+}
 
 app.get("/urls", async (req, res) => {
     try {
@@ -81,6 +106,8 @@ app.get("/:code", async (req, res) => {
 });
 
 
-app.listen(port, () => {
-    console.log(`running on port ${port}`);
+initDB().then(() => {
+    app.listen(port, () => {
+        console.log(`running on port ${port}`);
+    });
 });
