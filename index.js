@@ -17,6 +17,9 @@ const pool = new Pool({
 
 app.use(express.json());
 
+const cors = require("cors");
+app.use(cors());
+
 async function initDB() {
     let retries = 5;
     while (retries) {
@@ -63,7 +66,11 @@ app.post("/urls", async (req, res) => {
             "INSERT INTO urls (short_code, original_url) VALUES ($1, $2)",
             [code, url]
         )
-        res.status(200).json({ message: "Successfully Added a URL" });
+        res.status(200).json({
+            message: "Successfully Added a URL",
+            short_code: code,
+            short_url: `http://localhost:8080/${code}`
+        });
     }
     catch (err) {
         console.error(err);
