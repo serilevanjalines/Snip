@@ -1,0 +1,9 @@
+middleware
+
+
+
+POST /urls request comes in
+→ authenticateToken runs
+→ no token? stop. return 401.
+→ invalid token? stop. return 403.
+→ valid token? call next() → request reaches your POST /urls handlerS
