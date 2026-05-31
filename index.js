@@ -68,7 +68,6 @@ app.post("/urls", async (req, res) => {
         )
         res.status(200).json({
             message: "Successfully Added a URL",
-            short_code: code,
             short_url: `http://localhost:8080/${code}`
         });
     }
