@@ -60,12 +60,12 @@ app.get("/urls", async (req, res) => {
 app.post("/urls", async (req, res) => {
     try {
         const { url } = req.body;
-        const fullUrl = url.startsWith("http") ? url : `https://${url}`
+        const fullUrl = url.startsWith("https://") ? url : `https://${url}`;
         const code = Math.random().toString(36).slice(2, 6);
 
         await pool.query(
             "INSERT INTO urls (short_code, original_url) VALUES ($1, $2)",
-            [code, url]
+            [code, fullUrl]
         )
         res.status(200).json({
             message: "Successfully Added a URL",
