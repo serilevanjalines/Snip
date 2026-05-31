@@ -60,6 +60,7 @@ app.get("/urls", async (req, res) => {
 app.post("/urls", async (req, res) => {
     try {
         const { url } = req.body;
+        const fullUrl = url.startsWith("http") ? url : `https://${url}`
         const code = Math.random().toString(36).slice(2, 6);
 
         await pool.query(
