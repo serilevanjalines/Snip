@@ -17,3 +17,5 @@ psql useful commands to write in your notes:
 \q — quit psql
 
 npm install  pg
+
+npm create vite@latest frontend -- --template react
