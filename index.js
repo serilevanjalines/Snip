@@ -3,16 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const port = 8080;
 const app = express();
-const { Pool } = require("pg");
-
-
-const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
-});
+const pool = require("./db");
 
 
 app.use(express.json());
@@ -20,19 +11,34 @@ app.use(express.json());
 const cors = require("cors");
 app.use(cors());
 
+const authRoutes = require("./auth");
+app.use("/auth", authRoutes);
+
+const authenticateToken = require("./middleware");
+
+
+
 async function initDB() {
     let retries = 5;
     while (retries) {
         try {
             await pool.query(`
-                CREATE TABLE IF NOT EXISTS urls (
-                    id SERIAL PRIMARY KEY,
-                    short_code VARCHAR(10) UNIQUE NOT NULL,
-                    original_url TEXT NOT NULL,
-                    click_count INTEGER DEFAULT 0,
-                    created_at TIMESTAMP DEFAULT NOW()
-                )
-            `);
+    CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+    );
+
+        CREATE TABLE IF NOT EXISTS urls (
+        id SERIAL PRIMARY KEY,
+        short_code VARCHAR(10) UNIQUE NOT NULL,
+        original_url TEXT NOT NULL,
+        click_count INTEGER DEFAULT 0,
+        user_id INTEGER REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT NOW()
+    );
+`);
             console.log("DB ready");
             return;
         } catch (err) {
@@ -57,16 +63,17 @@ app.get("/urls", async (req, res) => {
 });
 
 
-app.post("/urls", async (req, res) => {
+app.post("/urls", authenticateToken ,async (req, res) => {
     try {
         const { url } = req.body;
         const fullUrl = url.startsWith("https://") ? url : `https://${url}`;
         const code = Math.random().toString(36).slice(2, 6);
 
         await pool.query(
-            "INSERT INTO urls (short_code, original_url) VALUES ($1, $2)",
-            [code, fullUrl]
-        )
+    "INSERT INTO urls (short_code, original_url, user_id) VALUES ($1, $2, $3)",
+    [code, fullUrl, req.userId]
+);
+
         res.status(200).json({
             message: "Successfully Added a URL",
             short_url: `http://localhost:8080/${code}`
@@ -80,7 +87,7 @@ app.post("/urls", async (req, res) => {
 });
 
 
-app.get("/test-db", async (req, res) => {
+app.get("/test-db" , async (req, res) => {
     const result = await pool.query("SELECT NOW()");
     res.json(result.rows[0]);
 })
