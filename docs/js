@@ -1,6 +1,9 @@
 why many awaits?
 every line that talks to something outside your code needs await —
 
-pool.query(...) — talking to postgres. takes time. await.
-bcrypt.compare(...) — hashing is slow on purpose (security). takes time. await.
-jwt.sign(...) — this one is actually synchronous. no await needed here. but it doesn't break anything if you add it.
+*pool.query(...) — talking to postgres. takes time. await.
+*bcrypt.compare(...) — hashing is slow on purpose (security). takes time. await.
+*jwt.sign(...) — this one is actually synchronous. no await needed here. but it doesn't break anything if you add it.
+*
+(auth.js)
+

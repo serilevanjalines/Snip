@@ -23,5 +23,5 @@ what we're adding to Snip:
 npm install jsonwebtoken bcrypt
 
 jsonwebtoken — creates and verifies JWT tokens
-bcrypt — hashes passwords. never store plain text passwords.
+* bcrypt — hashes passwords. never store plain text passwords.
 
