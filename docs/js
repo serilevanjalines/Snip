@@ -7,3 +7,9 @@ every line that talks to something outside your code needs await —
 *
 (auth.js)
 
+curl flags explained:
+
+-X POST — specify the HTTP method. default is GET.
+-L — follow redirects. without it, curl just shows the 302 response. with it, it follows to the final destination.
+-H — add a header. like Content-Type or Authorization.
+-d — send data in the body.
