@@ -4,6 +4,8 @@ const express = require("express");
 const port = 8080;
 const app = express();
 const pool = require("./db");
+const redis = require("./redis");
+const rateLimiter = require("./ratelimiter");
 
 
 app.use(express.json());
@@ -50,7 +52,7 @@ async function initDB() {
     throw new Error("DB connection failed");
 }
 
-app.get("/urls", async (req, res) => {
+app.get("/urls",authenticateToken, async (req, res) => {
     try {
         const result = await pool.query(
             "SELECT * FROM urls"
@@ -63,7 +65,7 @@ app.get("/urls", async (req, res) => {
 });
 
 
-app.post("/urls", authenticateToken ,async (req, res) => {
+app.post("/urls",rateLimiter, authenticateToken ,async (req, res) => {
     try {
         const { url } = req.body;
         const fullUrl = url.startsWith("https://") ? url : `https://${url}`;
@@ -96,6 +98,18 @@ app.get("/test-db" , async (req, res) => {
 app.get("/:code", async (req, res) => {
     try {
         const { code } = req.params;
+
+        const cached = await redis.get(code);
+
+        if (cached) {
+            console.log("Cache hit");
+            await pool.query(
+                "UPDATE urls SET click_count = click_count + 1 WHERE short_code = $1",
+                [code]
+            );
+            return res.redirect(cached);
+        }
+
         const result = await pool.query(
             "SELECT original_url FROM urls WHERE short_code = $1",
             [code]
@@ -111,7 +125,12 @@ app.get("/:code", async (req, res) => {
             [code]
         );
 
-        res.redirect(result.rows[0].original_url);
+        const originalUrl = result.rows[0].original_url;
+
+        await redis.set(code, originalUrl, "EX", 86400);
+
+        res.redirect(originalUrl);
+
 
     } catch (err) {
         console.error(err);
