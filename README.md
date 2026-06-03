@@ -34,14 +34,7 @@ docker-compose up --build
 ```
 
 ## Environment Variables
-```
-DB_USER=postgres
-DB_PASSWORD=postgres
-DB_NAME=snip
-DB_HOST=db
-DB_PORT=5432
-PORT=8080
-JWT_SECRET=your_secret
-REDIS_HOST=redis
-REDIS_PORT=6379
+Copy `.env.example` to `.env` and fill in your values.
+```bash
+cp .env.example .env
 ```
