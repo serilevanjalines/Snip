@@ -72,9 +72,9 @@ app.post("/urls",rateLimiter, authenticateToken ,async (req, res) => {
         const code = Math.random().toString(36).slice(2, 6);
 
         await pool.query(
-    "INSERT INTO urls (short_code, original_url, user_id) VALUES ($1, $2, $3)",
-    [code, fullUrl, req.userId]
-);
+            "INSERT INTO urls (short_code, original_url, user_id) VALUES ($1, $2, $3)",
+            [code, fullUrl, req.userId]
+        );
 
         res.status(200).json({
             message: "Successfully Added a URL",
