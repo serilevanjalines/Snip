@@ -70,6 +70,8 @@ app.post("/urls",rateLimiter, authenticateToken ,async (req, res) => {
         const { url } = req.body;
         const fullUrl = url.startsWith("https://") ? url : `https://${url}`;
         const code = Math.random().toString(36).slice(2, 6);
+        const baseUrl = process.env.BASE_URL || "http://localhost:8080";
+
 
         await pool.query(
             "INSERT INTO urls (short_code, original_url, user_id) VALUES ($1, $2, $3)",
