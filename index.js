@@ -6,7 +6,8 @@ const app = express();
 const pool = require("./db");
 const redis = require("./redis");
 const rateLimiter = require("./ratelimiter");
-
+const baseUrl = process.env.BASE_URL || "http://localhost:8080";
+    
 
 app.use(express.json());
 
@@ -80,7 +81,7 @@ app.post("/urls",rateLimiter, authenticateToken ,async (req, res) => {
 
         res.status(200).json({
             message: "Successfully Added a URL",
-            short_url: `http://localhost:8080/${code}`
+            short_url: `${baseUrl}/${code}`
         });
     }
     catch (err) {
@@ -145,4 +146,4 @@ initDB().then(() => {
     app.listen(port, () => {
         console.log(`running on port ${port}`);
     });
-});
+}); 
