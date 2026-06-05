@@ -32,7 +32,9 @@ cd url
 cp .env.example .env
 docker-compose up --build
 ```
-
+## Live Demo
+- Frontend: https://snip-frontend-two.vercel.app
+- Backend: https://snip-omzp.onrender.com
 ## Environment Variables
 Copy `.env.example` to `.env` and fill in your values.
 ```bash
