@@ -37,6 +37,7 @@ router.post("/login", async(req,res)=>{
         if(!isMatch){
             return res.status(400).json({error: "Invalid email or password"});
         }
+        console.log("JWT Secret during login:", process.env.JWT_SECRET);
         const token = jwt.sign({userId: user.id}, process.env.JWT_SECRET, {expiresIn: "1h"});
         res.json({token});  
     }
