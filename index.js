@@ -44,11 +44,16 @@ async function initDB() {
 `);
             console.log("DB ready");
             return;
-        } catch (err) {
-            retries--;
-            console.log(`DB not ready, retrying... ${retries} left`);
-            await new Promise(res => setTimeout(res, 2000));
-        }
+        } 
+        catch (err) {
+    console.error("========== DATABASE ERROR ==========");
+    console.error(err);
+    console.error("====================================");
+
+    retries--;
+    console.log(`DB not ready, retrying... ${retries} left`);
+    await new Promise(res => setTimeout(res, 2000));
+}
     }
     throw new Error("DB connection failed");
 }
